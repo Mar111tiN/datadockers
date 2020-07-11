@@ -1,5 +1,5 @@
 
-ARG TAG=3.7.7
+ARG TAG=3.7
 
 FROM martin37szyska/jupyter-base:${TAG}-alpine
 
