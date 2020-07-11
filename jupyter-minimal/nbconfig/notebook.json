@@ -1,0 +1,15 @@
+{
+  "load_extensions": {
+    "execute_time/ExecuteTime": true,
+    "varInspector/main": true,
+    "nbextensions_configurator/config_menu/main": true,
+    "keyboard_shortcut_editor/main": false,
+    "contrib_nbextensions_help_item/main": true,
+    "autoscroll/main": false
+  },
+  "Cell": {
+    "cm_config": {
+      "lineNumbers": true
+    }
+  }
+}
