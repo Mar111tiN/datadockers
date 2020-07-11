@@ -1,4 +1,4 @@
-ARG TAG=3.7
+ARG TAG=3.8
 
 FROM martin37szyska/miniconda:${TAG}-alpine
 
