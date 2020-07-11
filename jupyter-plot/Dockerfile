@@ -1,9 +1,10 @@
 
 ARG TAG=3.7.7
 
-FROM martin37szyska/jupyter-minimal:$TAG
+FROM martin37szyska/jupyter-minimal:${TAG}-alpine
 
-ARG CURRENTUSER=$NB_USER
+ARG CURRENTUSER=10151
+
 USER root
 
 WORKDIR $HOME
@@ -12,9 +13,7 @@ WORKDIR $HOME
 RUN conda install --quiet --yes \
     'matplotlib' \
     'seaborn' && \
-    conda clean --all -f -y && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+    conda clean --all -f -y
 
 # extend startup config with startup.ext
 COPY startup.ext .ipython/profile_default/startup

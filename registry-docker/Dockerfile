@@ -1,8 +1,8 @@
 ARG TAG=3.7.7
 
-FROM martin37szyska/jupyter-minimal:$TAG
+FROM martin37szyska/jupyter-minimal:${TAG}-alpine
 
-ARG CURRENTUSER=$NB_USER
+ARG CURRENTUSER=10151
 
 USER root
 
