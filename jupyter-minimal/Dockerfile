@@ -1,5 +1,5 @@
 
-ARG TAG=3.8
+ARG TAG=3.10
 FROM martin37szyska/jupyter-base:$TAG
 
 USER root
@@ -58,6 +58,14 @@ RUN mkdir -p .jupyter && \
 
 COPY custom .jupyter/custom
 
+ENV PYTHON_VERSION=3.10
+WORKDIR /opt/conda/lib/python${PYTHON_VERSION}/site-packages
+
+# fix the mislabelling of template_paths
+# see https://github.com/jfbercher/jupyter_latex_envs/pull/58#issuecomment-1008511704
+RUN sed -Ei 's/template_path/template_paths/g' latex_envs/latex_envs.py && \
+    for f in jupyter_contrib_nbextensions/{install,migrate}.py; do sed -Ei 's/Exporter\.template_path/Exporter.template_paths/g' $f; done
+WORKDIR $HOME
 
 # Switch back to martin to avoid accidental container runs as root
 USER $NB_USER
