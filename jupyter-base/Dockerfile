@@ -4,7 +4,7 @@
 # Ubuntu 20.04 (focal)
 # https://hub.docker.com/_/ubuntu/?tab=tags&name=focal
 # OS/ARCH: linux/amd64
-FROM ubuntu:focal-20200423@sha256:238e696992ba9913d24cfc3727034985abd136e08ee3067982401acdc30cbf3f
+FROM ubuntu:focal
 
 LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
 ARG NB_USER="martin"
@@ -74,15 +74,15 @@ RUN mkdir /home/$NB_USER/work && \
     fix-permissions /home/$NB_USER
 
 # Install conda as martin and check the md5 sum provided on the download site
-ENV MINICONDA_VERSION=4.8.3 \
-    MINICONDA_MD5=d63adf39f2c220950a063e0529d4ff74 \
-    CONDA_VERSION=4.8.3
+ENV MINICONDA_VERSION=4.12.0 \
+    MINICONDA_MD5=7843dd7d0a2c53b0df37ca8189672992 \
+    PYTHON_VERSION=3.10
 
 WORKDIR /tmp
-RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-py38_${MINICONDA_VERSION}-Linux-x86_64.sh && \
-    echo "${MINICONDA_MD5} *Miniconda3-py38_${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
-    /bin/bash Miniconda3-py38_${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR && \
-    rm Miniconda3-py38_${MINICONDA_VERSION}-Linux-x86_64.sh && \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py39_${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    echo "${MINICONDA_MD5} *Miniconda3-py39_${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
+    /bin/bash Miniconda3-py39_${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR && \
+    rm Miniconda3-py39_${MINICONDA_VERSION}-Linux-x86_64.sh && \
     echo "conda ${CONDA_VERSION}" >> $CONDA_DIR/conda-meta/pinned && \
     conda config --system --prepend channels conda-forge && \
     conda config --system --set auto_update_conda false && \
@@ -112,7 +112,7 @@ RUN conda install --quiet --yes 'tini=0.18.0' && \
 # Do all this in a single RUN command to avoid duplicating all of the
 # files across image layers when the permissions change
 RUN conda install --quiet --yes \
-    'notebook=6.0.3' && \
+    'notebook=6.4.11' && \
     conda clean --all -f -y && \
     jupyter notebook --generate-config && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
