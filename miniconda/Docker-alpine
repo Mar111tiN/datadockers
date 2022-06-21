@@ -1,0 +1,50 @@
+ARG ALPINE_VERSION=3.12
+
+FROM frolvlad/alpine-glibc:alpine-${ALPINE_VERSION}
+
+ARG USER="martin"
+
+ENV CONDA_VERSION=4.12.0
+ENV CONDA_MD5=7843dd7d0a2c53b0df37ca8189672992
+ENV CONDA_DIR="/opt/conda"
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PATH="$CONDA_DIR/bin:$PATH"
+ENV PYTHON_VERSION=py39
+ENV PLATFORM=x86_64
+ENV HOME="/home/${USER}"
+# install minimal linux features
+RUN apk add --no-cache --virtual .build-dependencies ca-certificates wget && \
+    apk add --no-cache bash
+
+# install dependencies, install Conda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${PYTHON_VERSION}_${CONDA_VERSION}-Linux-${PLATFORM}.sh -O miniconda.sh && \
+    echo "${CONDA_MD5}  miniconda.sh"  | md5sum -c && \
+    mkdir -p /opt && \
+    # install miniconda
+    bash ./miniconda.sh -f -b -p $CONDA_DIR && \
+    echo "export PATH=$CONDA_DIR/bin:\$PATH" > /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc && \
+    conda update --all --yes && \
+
+    # cleanup
+    apk del --purge .build-dependencies && \
+    conda clean --all --force-pkgs-dirs --yes && \
+    find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \  
+    rm -f miniconda.sh miniconda.md5 && \
+    # finalize
+    mkdir -p "$CONDA_DIR/locks" && \
+    chmod 777 "$CONDA_DIR/locks"
+
+# Install Tini
+RUN conda install --quiet --yes 'tini=0.18.0' && \
+    conda clean --all -f -y
+
+COPY .condarc $HOME
+
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR $HOME
+
+ENTRYPOINT [ "tini", "-g", "--" ]
+CMD [ "/bin/bash" ]

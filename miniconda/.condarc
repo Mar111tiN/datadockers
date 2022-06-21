@@ -1,0 +1,7 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+
+channel_priority: strict
+auto_update_conda: false
