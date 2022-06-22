@@ -1,7 +1,5 @@
-ARG OS="ubuntu:focal"
-
-FROM $OS
-
+FROM ubuntu:focal
+ARG TARGETPLATFORM
 ARG USER="martin"
 
 ENV PATH /opt/conda/bin:$PATH
@@ -21,12 +19,15 @@ ENV HOME /home/$USER
 RUN mkdir $HOME
 
 ENV CONDA_VERSION=4.12.0 \
-    CONDA_MD5=7843dd7d0a2c53b0df37ca8189672992 \
-    PYTHON_VERSION=py39 \
-    PLATFORM=x86_64
+    PYTHON_VERSION=py39
 
-
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${PYTHON_VERSION}_${CONDA_VERSION}-Linux-${PLATFORM}.sh -O ~/miniconda.sh && \
+RUN case "${TARGETPLATFORM}" in \
+        "linux/amd64") CONDA_MD5=7843dd7d0a2c53b0df37ca8189672992 ;; \
+        "linux/arm64") CONDA_MD5=9baf936183f3479c97bff16fe62fb56c ;; \
+    esac \ 
+    && printf "TARGETPLATFORM ${TARGETPLATFORM}" \
+    && printf "MD5: ${CONDA_MD5}" \
+    && wget -q https://repo.anaconda.com/miniconda/Miniconda3-${PYTHON_VERSION}_${CONDA_VERSION}-$(uname -s)-$(uname -mm).sh -O ~/miniconda.sh && \
     echo ${CONDA_MD5} ~/miniconda.sh | md5sum -c - && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda && \
     rm ~/miniconda.sh && \
@@ -36,7 +37,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${PYTHON_VERSION
     echo "conda activate base" >> ~/.bashrc
 
 # Install Tini
-RUN conda install --quiet --yes 'tini=0.18.0' && \
+RUN conda install --quiet --yes -c conda-forge 'tini=0.19.0' && \
     conda clean --all -f -y
 
 COPY .condarc $HOME
